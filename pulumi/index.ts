@@ -118,7 +118,7 @@ const hmrcClientIdSecret = new gcp.secretmanager.Secret(
     {
 	secretId: "oauth-proxy-hmrc-client-id",
 	replication: {
-	    automatic: true
+	    auto: {},
 	},
     },
     {
@@ -142,7 +142,7 @@ const hmrcClientSecretSecret = new gcp.secretmanager.Secret(
     {
 	secretId: "oauth-proxy-hmrc-client-secret",
 	replication: {
-	    automatic: true
+	    auto: {},
 	},
     },
     {
@@ -166,7 +166,7 @@ const verificationSecretSecret = new gcp.secretmanager.Secret(
     {
 	secretId: "oauth-proxy-verification-secret",
 	replication: {
-	    automatic: true
+	    auto: {},
 	},
     },
     {
