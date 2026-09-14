@@ -67,69 +67,16 @@ const provider = new gcp.Provider(
     }
 );
 
-const enableCloudRun = new gcp.projects.Service(
-    "enable-cloud-run",
-    {
-	service: "run.googleapis.com",
-    },
-    {
-	provider: provider
-    }
-);
-
-const enableComputeEngine = new gcp.projects.Service(
-    "enable-compute-engine",
-    {
-	service: "compute.googleapis.com",
-    },
-    {
-	provider: provider
-    }
-);
-
-const enableCloudDns = new gcp.projects.Service(
-    "enable-cloud-dns",
-    {
-	service: "dns.googleapis.com",
-    },
-    {
-	provider: provider
-    }
-);
-
-const enableArtifactRegistry = new gcp.projects.Service(
-    "enable-artifact-registry",
-    {
-	service: "artifactregistry.googleapis.com",
-    },
-    {
-	provider: provider
-    }
-);
-
-const enableIAM = new gcp.projects.Service(
-    "enable-iam",
-    {
-	service: "iam.googleapis.com",
-    },
-    {
-	provider: provider
-    }
-);
 
 const repo = process.env.ARTIFACT_REPO;
 
-const artifactRepo = new gcp.artifactregistry.Repository(
-    "artifact-repo",
+const artifactRepo = gcp.artifactregistry.getRepositoryOutput(
     {
-	description: "repository for " + process.env.ENVIRONMENT,
-	format: "DOCKER",
 	location: process.env.ARTIFACT_REPO_REGION,
 	repositoryId: process.env.ARTIFACT_NAME,
     },
     {
 	provider: provider,
-	dependsOn: enableArtifactRegistry,
     }
 );
 
@@ -150,7 +97,7 @@ const image = new local.Command(
 	create: "docker push " + imageName,
     },
     {
-	dependsOn: [taggedImage, artifactRepo],
+	dependsOn: [taggedImage],
     }
 );
 
@@ -163,7 +110,6 @@ const svcAccount = new gcp.serviceaccount.Account(
     },
     {
 	provider: provider,
-	dependsOn: [enableIAM],
     }
 );
 
@@ -357,7 +303,7 @@ const service = new gcp.cloudrun.Service(
     {
 	provider: provider,
 	dependsOn: [
-	    enableCloudRun, image,
+	    image,
 	    hmrcClientIdVersion, hmrcClientSecretVersion,
 	    verificationSecretVersion,
 	],
@@ -414,18 +360,12 @@ export const host = domainMapping.statuses.apply(
     x => x.rrdata
 );
 
-const zone = new gcp.dns.ManagedZone(
-    "zone",
+const zone = gcp.dns.getManagedZoneOutput(
     {
 	name: process.env.DNS_DOMAIN_DESCRIPTION,
-	description: process.env.DOMAIN,
-	dnsName: process.env.DOMAIN,
-	labels: {
-	},
     },
     {
 	provider: provider,
-	dependsOn: [enableCloudDns],
     }
 );
 
@@ -440,7 +380,6 @@ const recordSet = new gcp.dns.RecordSet(
     },
     {
 	provider: provider,
-	dependsOn: zone,
     }
 );
 
