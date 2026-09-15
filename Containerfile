@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends gcc libc6-dev && \
-    pip install --no-cache-dir gnucash-uk-vat && \
+    pip install --no-cache-dir gnucash-uk-vat==1.9.2 && \
     apt-get purge -y gcc libc6-dev && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
